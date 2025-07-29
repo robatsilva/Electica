@@ -88,4 +88,4 @@ You can POST this array to the `/tickets/itinerary` endpoint to store and receiv
 
 ---
 
-**Note:** The assessment were created with the help of Copilot AI.
+**Note:** The assessment was created with the help of Copilot AI.
