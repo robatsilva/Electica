@@ -8,7 +8,6 @@ export class TicketsService {
   private itineraries: Map<string, Ticket[]> = new Map();
 
   sortAndStoreItinerary(tickets: Ticket[]): SortedTicketsResponseDto {
-    // TODO: Implement sorting algorithm
     const sortedTickets = this.sortTickets(tickets);
     const itineraryId = this.generateItineraryId();
     this.itineraries.set(itineraryId, sortedTickets);
@@ -35,18 +34,12 @@ export class TicketsService {
 
   private sortTickets(tickets: Ticket[]): Ticket[] {
     if (!tickets || tickets.length === 0) return [];
-
-    // Map from 'from' to ticket
     const fromMap = new Map<string, Ticket>();
-    // Set of all 'to' locations
     const toSet = new Set<string>();
-
     for (const ticket of tickets) {
       fromMap.set(ticket.from, ticket);
       toSet.add(ticket.to);
     }
-
-    // Find the starting ticket (whose 'from' is not any 'to')
     let start: Ticket | undefined = undefined;
     for (const ticket of tickets) {
       if (!toSet.has(ticket.from)) {
@@ -54,16 +47,12 @@ export class TicketsService {
         break;
       }
     }
-    if (!start) return tickets; // fallback: return as is
-
-    // Chain tickets
-    const sorted: Ticket[] = [start];
-    let current = start;
-    while (true) {
-      const next = tickets.find((t) => t.from === current.to);
-      if (!next) break;
-      sorted.push(next);
-      current = next;
+    if (!start) return tickets;
+    const sorted: Ticket[] = [];
+    let current: Ticket | undefined = start;
+    while (current) {
+      sorted.push(current);
+      current = fromMap.get(current.to);
     }
     return sorted;
   }
