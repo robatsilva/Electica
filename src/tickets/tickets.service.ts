@@ -1,50 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Ticket } from './ticket.interface';
 import { SortedTicketsResponseDto } from './dto/sorted-tickets-response.dto';
+import { formatters, defaultFormatter } from './formatters';
 
 @Injectable()
 export class TicketsService {
-  getHumanReadableItinerary(id: string): string[] | undefined {
-    const tickets = this.getItineraryById(id);
-    if (!tickets) return undefined;
-    const steps: string[] = [];
-    if (tickets.length === 0) return steps;
-    steps.push('Start.');
-    tickets.forEach((ticket, idx) => {
-      let step = `${idx + 1}. `;
-      switch (ticket.type) {
-        case 'train':
-          step += `Board train ${ticket.details?.trainNumber ?? ticket.id}`;
-          if (ticket.details?.platform)
-            step += `, Platform ${ticket.details.platform}`;
-          step += ` from ${ticket.from} to ${ticket.to}.`;
-          if (ticket.details?.seatNumber)
-            step += ` Seat number ${ticket.details.seatNumber}.`;
-          break;
-        case 'tram':
-          step += `Board the Tram ${ticket.details?.tramNumber ?? ticket.id} from ${ticket.from} to ${ticket.to}.`;
-          break;
-        case 'bus':
-          step += `Board the bus from ${ticket.from} to ${ticket.to}.`;
-          if (ticket.details?.seatNumber)
-            step += ` Seat number ${ticket.details.seatNumber}.`;
-          break;
-        case 'flight':
-          step += `From ${ticket.from}, board the flight ${ticket.details?.flightNumber ?? ticket.id} to ${ticket.to}`;
-          if (ticket.details?.gate) step += ` from gate ${ticket.details.gate}`;
-          if (ticket.details?.seatNumber)
-            step += `, seat ${ticket.details.seatNumber}`;
-          if (ticket.details?.luggage) step += `. ${ticket.details.luggage}`;
-          step += '.';
-          break;
-        default:
-          step += `Travel from ${ticket.from} to ${ticket.to}.`;
-      }
-      steps.push(step);
-    });
-    steps.push('Last destination reached.');
-    return steps;
-  }
   private itineraries: Map<string, Ticket[]> = new Map();
 
   sortAndStoreItinerary(tickets: Ticket[]): SortedTicketsResponseDto {
@@ -57,6 +17,20 @@ export class TicketsService {
 
   getItineraryById(id: string): Ticket[] | undefined {
     return this.itineraries.get(id);
+  }
+
+  getHumanReadableItinerary(id: string): string[] | undefined {
+    const tickets = this.getItineraryById(id);
+    if (!tickets) return undefined;
+    const steps: string[] = [];
+    if (tickets.length === 0) return steps;
+    steps.push('Start.');
+    tickets.forEach((ticket, idx) => {
+      const formatter = formatters[ticket.type] || defaultFormatter;
+      steps.push(formatter(ticket, idx));
+    });
+    steps.push('Last destination reached.');
+    return steps;
   }
 
   private sortTickets(tickets: Ticket[]): Ticket[] {
