@@ -6,7 +6,7 @@ A NestJS REST API for sorting travel tickets and generating human-readable itine
 
 1. **Clone the repository:**
    ```sh
-   git clone <your-repo-url>
+   git clone https://github.com/robatsilva/Electica.git
    cd Electica/api
    ```
 2. **Install dependencies:**
@@ -59,7 +59,7 @@ Here is a sample payload for creating an itinerary:
 ]
 ```
 
-You can POST this array to the `/tickets/sort` endpoint to receive a sorted itinerary.
+You can POST this array to the `/tickets/itinerary` endpoint to store and receive a sorted itinerary.
 
 ## Running Tests
 
